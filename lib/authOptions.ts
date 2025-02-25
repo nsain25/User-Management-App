@@ -1,23 +1,27 @@
 import prisma from "@/lib/prisma"; // Use the singleton instance
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { NextAuthOptions, DefaultSession } from "next-auth";
-import { JWT } from "next-auth/jwt";
+import { NextAuthOptions } from "next-auth";
 
-// Extend Session and JWT types to include custom properties
 declare module "next-auth" {
   interface Session {
-    user?: {
-      id?: string;
-      role?: string;
-    } & DefaultSession["user"];
+    user: {
+      id: string;
+      email: string;
+      role: string;
+    };
+  }
+  interface User {
+    id: string;
+    email: string;
+    role: string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id?: string;
-    role?: string;
+    id: string;
+    role: string;
   }
 }
 
@@ -56,8 +60,8 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          role: user.role.name, // Access role name
-          name: user.email.split('@')[0], // Use the part before '@' as name
+          role: user.role.name, // Access role name here
+          name: user.email.split("@")[0], // Use the part before '@' as name
         };
       },
     }),
@@ -74,8 +78,8 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         // Ensure session.user is defined before accessing its properties
         session.user = session.user ?? {};
-        session.user.id = token.id as string | undefined;
-        session.user.role = token.role as string | undefined;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     },
