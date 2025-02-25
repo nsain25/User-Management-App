@@ -48,7 +48,7 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token, user }) {
+    async session({ session }) { // ✅ Removed unused token and user
       const dbUser = await prisma.user.findUnique({
         where: {
           email: session.user.email as string,
