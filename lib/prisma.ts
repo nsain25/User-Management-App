@@ -1,12 +1,14 @@
-// lib/prisma.ts
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
 declare global {
-  let prisma: PrismaClient | undefined;
+  // Allow global `var` here to work with Next.js's hot reloading
+  var prisma: PrismaClient | undefined;
 }
 
-const prisma = global.prisma || new PrismaClient();
+const client = global.prisma || new PrismaClient();
 
-if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = client;
+}
 
-export default prisma;
+export default client;
