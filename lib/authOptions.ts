@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma),  // ✅ Updated import
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -43,7 +43,13 @@ export const authOptions: AuthOptions = {
           throw new Error("Incorrect password.");
         }
 
-        return user;
+        // Flatten the returned object to match the expected User type
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.email.split("@")[0], // Default name from email
+          role: user.role?.name || "No Role", // Flattened role name
+        };
       },
     }),
   ],
@@ -82,7 +88,7 @@ export const authOptions: AuthOptions = {
     },
   },
   session: {
-    strategy: "jwt",  // ✅ Using JWT strategy
+    strategy: "jwt",
   },
   pages: {
     signIn: "/auth/signin",
