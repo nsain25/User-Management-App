@@ -1,71 +1,42 @@
-import prisma from "@/lib/prisma";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
-import { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { AuthOptions } from "next-auth";
+import { PrismaClient } from "@prisma/client";
+import GitHubProvider from "next-auth/providers/github";
+import EmailProvider from "next-auth/providers/email";
+import { Adapter } from "next-auth/adapters";
 
-export const authOptions: NextAuthOptions = {
+const prisma = new PrismaClient();
+
+export const authOptions: AuthOptions = {
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    }),
+    EmailProvider({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: Number(process.env.EMAIL_SERVER_PORT),
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
       },
-      async authorize(credentials) {
-        const user = await prisma.user.findUnique({
-          where: { email: credentials?.email },
-          include: { role: true },
-        });
-
-        if (!user) {
-          throw new Error("No user found with this email");
-        }
-
-        if (!user.emailVerified) {
-          throw new Error("Email not verified");
-        }
-
-        const isValidPassword = await bcrypt.compare(
-          credentials?.password || "",
-          user.password
-        );
-
-        if (!isValidPassword) {
-          throw new Error("Incorrect password");
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          role: user.role.name,
-          name: user.email.split("@")[0],
-        };
-      },
+      from: process.env.EMAIL_FROM,
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user = {
-          ...session.user,
-          id: token.id as string,
-          role: token.role as string,
-        };
-      }
+    async session({ session, user }) {
+      // Attach custom properties to the session object
+      session.user = {
+        ...session.user,
+        id: user.id,
+        email: user.email,
+        role: user.role?.name ?? "No Role",  // ✅ Safely handle nullable role
+        name: user.email.split("@")[0],
+      };
       return session;
     },
-  },
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/auth/signin",
   },
 };
