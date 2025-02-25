@@ -56,12 +56,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Incorrect password");
         }
 
-        console.log("User authenticated successfully");
         return {
           id: user.id,
           email: user.email,
-          role: user.role.name, // Access role name here
-          name: user.email.split("@")[0], // Use the part before '@' as name
+          role: user.role.name,
+          name: user.email.split("@")[0],
         };
       },
     }),
@@ -77,7 +76,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user = {
-          ...session.user, // Preserve other properties like name or image
+          ...session.user,
           id: token.id as string,
           role: token.role as string,
         };
