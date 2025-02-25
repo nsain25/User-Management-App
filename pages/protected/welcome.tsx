@@ -3,7 +3,12 @@ import { getSession, signOut } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 
-const Welcome = ({ user }: { user: any }) => {
+type UserType = {
+  email: string;
+  role: string;
+};
+
+const Welcome = ({ user }: { user: UserType }) => {
   const { data: session } = useSession();
 
   if (!session) {
