@@ -1,4 +1,4 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { AuthOptions } from "next-auth";
 import { PrismaClient } from "@prisma/client";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma),  // ✅ Updated import
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -27,7 +27,7 @@ export const authOptions: AuthOptions = {
           include: {
             role: {
               select: {
-                name: true, // ✅ Include role name
+                name: true, 
               },
             },
           },
@@ -48,31 +48,41 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session }) { // ✅ Removed unused token and user
-      const dbUser = await prisma.user.findUnique({
-        where: {
-          email: session.user.email as string,
-        },
-        include: {
-          role: {
-            select: {
-              name: true, // ✅ Include role name
+    async session({ session, token }) {
+      if (token?.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: {
+            id: token.sub,
+          },
+          include: {
+            role: {
+              select: {
+                name: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      if (dbUser) {
-        session.user = {
-          id: dbUser.id,
-          email: dbUser.email,
-          role: dbUser.role ? dbUser.role.name : "No Role", // ✅ Safely accessing role name
-          name: dbUser.email.split("@")[0], // Default name from email
-        };
+        if (dbUser) {
+          session.user = {
+            id: dbUser.id,
+            email: dbUser.email,
+            role: dbUser.role ? dbUser.role.name : "No Role",
+            name: dbUser.email.split("@")[0],
+          };
+        }
       }
-
       return session;
     },
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
+    },
+  },
+  session: {
+    strategy: "jwt",  // ✅ Using JWT strategy
   },
   pages: {
     signIn: "/auth/signin",
