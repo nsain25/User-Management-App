@@ -36,10 +36,10 @@ export const authOptions: NextAuthOptions = {
 
         console.log("User authenticated successfully");
         return {
-         id: user.id,
-         email: user.email,
-         role: user.role,
-         name: user.email.split('@')[0], // Use the part before '@' as name
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          name: user.email.split('@')[0], // Use the part before '@' as name
         };
       },
     }),
@@ -54,6 +54,8 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
+        // Ensure session.user is defined before accessing its properties
+        session.user = session.user ?? {};
         session.user.id = token.id;
         session.user.role = token.role;
       }
