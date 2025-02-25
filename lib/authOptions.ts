@@ -1,15 +1,15 @@
-import prisma from "@/lib/prisma"; // Use the singleton instance
+import prisma from "@/lib/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, DefaultSession } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
-    user: {
+    user?: {
       id: string;
       email: string;
       role: string;
-    } & DefaultSession["user"]; // Extend DefaultSession to avoid type conflicts
+    } & DefaultSession["user"]; // Keep user optional and extend DefaultSession
   }
   interface User {
     id: string;
