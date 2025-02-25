@@ -33,7 +33,7 @@ export const authOptions: AuthOptions = {
         ...session.user,
         id: user.id,
         email: user.email,
-        role: user.role.name,  // ⛔ This line does NOT handle nullable role
+        role: user.role?.name || "No Role",
         name: user.email.split("@")[0],
       };
       return session;
