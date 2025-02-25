@@ -36,9 +36,10 @@ export const authOptions: NextAuthOptions = {
 
         console.log("User authenticated successfully");
         return {
-          id: user.id,
-          email: user.email,
-          role: user.role.name,
+         id: user.id,
+         email: user.email,
+         role: user.role,
+         name: user.email.split('@')[0], // Use the part before '@' as name
         };
       },
     }),
