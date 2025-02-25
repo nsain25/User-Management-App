@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
+interface Role {
+  id: string;
+  name: string;
+}
+
 export default function Signup() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [roleId, setRoleId] = useState("");
   const [error, setError] = useState("");
-  const [roles, setRoles] = useState([]);
+  const [roles, setRoles] = useState<Role[]>([]);
 
   useEffect(() => {
-    // Fetch roles from API
     const fetchRoles = async () => {
       const res = await fetch("/api/roles");
       const data = await res.json();
@@ -71,7 +75,7 @@ export default function Signup() {
           required
         >
           <option value="">Select Role</option>
-          {roles.map((role: any) => (
+          {roles.map((role) => (
             <option key={role.id} value={role.id}>
               {role.name}
             </option>

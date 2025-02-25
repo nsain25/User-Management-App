@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function Signin() {
   const router = useRouter();
@@ -53,13 +54,10 @@ export default function Signin() {
         </button>
         {error && <p className="text-red-500 mt-2">{error}</p>}
         <p className="mt-4 text-center">
-          Don't have an account?{" "}
-          <a
-            href="/auth/signup"
-            className="text-blue-500 hover:underline"
-          >
+          Don&apos;t have an account?{" "}
+          <Link href="/auth/signup" className="text-blue-500 hover:underline">
             Create Account
-          </a>
+          </Link>
         </p>
       </form>
     </div>

@@ -6,6 +6,13 @@ const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
 });
 
+// Define a type for request body
+interface SignupRequestBody {
+  email: string;
+  password: string;
+  roleId: string;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -15,7 +22,7 @@ export default async function handler(
   }
 
   try {
-    const { email, password, roleId } = req.body;
+    const { email, password, roleId } = req.body as SignupRequestBody;
 
     if (!email || !password || !roleId) {
       return res.status(400).json({ error: "All fields are required" });
@@ -47,7 +54,7 @@ export default async function handler(
     return res
       .status(201)
       .json({ message: "User registered", userId: user.id });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Signup Error:", error);
     return res.status(500).json({ error: "Error creating user" });
   } finally {
