@@ -5,11 +5,11 @@ import { NextAuthOptions } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
-    user?: { // Made user optional here
+    user: {
       id: string;
       email: string;
       role: string;
-    };
+    } & DefaultSession["user"]; // Extend DefaultSession to avoid type conflicts
   }
   interface User {
     id: string;
@@ -76,10 +76,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        // Ensure session.user is defined before accessing its properties
-        session.user = session.user ?? {};
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user = {
+          ...session.user, // Preserve other properties like name or image
+          id: token.id as string,
+          role: token.role as string,
+        };
       }
       return session;
     },
