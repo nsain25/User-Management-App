@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String             @id @default(uuid())
+  email             String             @unique
+  name              String?
+  password          String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  tenantId          String?
+  emailVerified     Boolean            @default(false)
+  tenant            Tenant?            @relation("UserTenant", fields: [tenantId], references: [id])
+  VerificationToken VerificationToken?
+  
+  // Role-based access
+  roleId            String?
+  role              Role?              @relation(fields: [roleId], references: [id])
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  users     User[]   @relation("UserTenant")
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @unique @map("user_id")
+  expiresAt DateTime? @default(dbgenerated("'2099-12-31 23:59:59'::timestamp")) // Default expiration date
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Role {
+  id        String @id @default(uuid())
+  name      String @unique
+  users     User[]
+}
+
