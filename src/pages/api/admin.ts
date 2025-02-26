@@ -1,3 +1,4 @@
+// src/pages/api/admin.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import { requireRole } from "../../middleware/requireRole";
 
@@ -8,14 +9,8 @@ const adminHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 // Export with a name to avoid anonymous function warning
 const AdminApi = async (req: NextApiRequest, res: NextApiResponse) => {
-  // Call requireRole and wait for the response
-  const roleCheck = await requireRole(["ADMIN"])(req);
-
-  // If the role check returns a redirect, end the response
-  if (roleCheck instanceof Response) {
-    res.status(roleCheck.status).end();
-    return;
-  }
+  // Call requireRole and pass both req and res
+  await requireRole(["ADMIN"])(req, res);
 
   // If role check passes, proceed to the handler
   await adminHandler(req, res);

@@ -1,21 +1,45 @@
 // src/middleware/requireRole.ts
 import { NextRequest, NextResponse } from "next/server";
+import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 
 export function requireRole(allowedRoles: string[]) {
-  return async (req: NextRequest) => {
-    const token = await getToken({ req });
+  return async (req: NextRequest | NextApiRequest, res?: NextApiResponse) => {
+    // Use getToken with type assertion for compatibility
+    const token = await getToken({ req: req as any });
 
     if (!token) {
-      return NextResponse.redirect(new URL("/auth/signin", req.url));
+      if (res) {
+        // Traditional API route redirection
+        res.writeHead(302, { Location: "/auth/signin" });
+        res.end();
+        return;
+      } else {
+        // Middleware/Edge route redirection
+        return NextResponse.redirect(new URL("/auth/signin", (req as NextRequest).url));
+      }
     }
 
     const userRole = token.role;
 
     if (userRole && allowedRoles.includes(userRole)) {
-      return NextResponse.next();
+      if (res) {
+        // Continue API route execution
+        return;
+      } else {
+        // Continue middleware execution
+        return NextResponse.next();
+      }
     } else {
-      return NextResponse.redirect(new URL("/unauthorized", req.url));
+      if (res) {
+        // Traditional API route redirection
+        res.writeHead(302, { Location: "/unauthorized" });
+        res.end();
+        return;
+      } else {
+        // Middleware/Edge route redirection
+        return NextResponse.redirect(new URL("/unauthorized", (req as NextRequest).url));
+      }
     }
   };
 }
