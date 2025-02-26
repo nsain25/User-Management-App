@@ -4,10 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 
 export function requireRole(allowedRoles: string[]) {
-  return async (
-    req: NextRequest | (NextApiRequest & { cookies: { [key: string]: string } }),
-    res?: NextApiResponse
-  ) => {
+  return async (req: NextRequest | NextApiRequest, res?: NextApiResponse) => {
     const token = await getToken({ req });
 
     if (!token) {
