@@ -2,8 +2,8 @@
 import { PrismaClient } from '@prisma/client';
 
 declare global {
-  // This prevents redeclaration issues in hot reloads
-  var prisma: PrismaClient | undefined;
+  // Allow global `let` here to work with Next.js's hot reloading
+  let prisma: PrismaClient | undefined;
 }
 
 const prisma = global.prisma || new PrismaClient();
