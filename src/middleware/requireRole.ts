@@ -4,9 +4,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 
 export function requireRole(allowedRoles: string[]) {
-  return async (req: NextRequest | NextApiRequest, res?: NextApiResponse) => {
-    // Use getToken with type assertion for compatibility
-    const token = await getToken({ req: req as any });
+  return async (
+    req: NextRequest | (NextApiRequest & { cookies: { [key: string]: string } }),
+    res?: NextApiResponse
+  ) => {
+    const token = await getToken({ req });
 
     if (!token) {
       if (res) {
