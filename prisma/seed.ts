@@ -9,13 +9,13 @@ async function main() {
     console.log("Seeding database...");
 
     // Create roles
-    const adminRole = await prisma.role.upsert({
+    await prisma.role.upsert({
         where: { name: "ADMIN" },
         update: {},
         create: { name: "ADMIN" },
     });
 
-    const userRole = await prisma.role.upsert({
+    await prisma.role.upsert({
         where: { name: "USER" },
         update: {},
         create: { name: "USER" },
@@ -42,7 +42,7 @@ async function main() {
             password: hashedPassword,
             emailVerified: true, // Ensure email is verified
             tenantId: tenant.id,
-            roleId: adminRole.id,
+            roleId: (await prisma.role.findFirst({ where: { name: "ADMIN" } }))?.id,
         },
     });
 

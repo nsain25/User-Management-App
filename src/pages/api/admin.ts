@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { requireRole } from "../../middleware/requireRole";
 
 // Define handler as a named function
-const adminHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+const adminHandler = async (_: NextApiRequest, res: NextApiResponse) => {
   res.status(200).json({ message: "Admin route success!" });
 };
 
