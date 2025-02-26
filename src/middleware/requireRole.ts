@@ -3,47 +3,46 @@ import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 
-// Define a type that covers both request types
-type CustomRequest = NextRequest | NextApiRequest;
-
 export function requireRole(allowedRoles: string[]) {
-  return async (req: CustomRequest, res?: NextApiResponse) => {
-    const token = await getToken({ req });
+  return async (
+    req: NextRequest | (NextApiRequest & { cookies: { [key: string]: string } }),
+    res?: NextApiResponse
+  ) => {
+    // Determine if it's a NextRequest (middleware) or NextApiRequest (API route)
+    const isMiddleware = req instanceof NextRequest;
 
-    // Check if the token exists
+    // Get token using getToken from next-auth/jwt
+    const token = await getToken({ req: isMiddleware ? (req as NextRequest) : (req as NextApiRequest) });
+
+    // If no token, redirect to sign-in page
     if (!token) {
-      if (res) {
-        // Traditional API route redirection
-        res.writeHead(302, { Location: "/auth/signin" });
-        res.end();
-        return;
-      } else {
-        // Middleware/Edge route redirection
+      if (isMiddleware) {
         return NextResponse.redirect(new URL("/auth/signin", (req as NextRequest).url));
+      } else {
+        res?.writeHead(302, { Location: "/auth/signin" });
+        res?.end();
+        return;
       }
     }
 
-    // Extract role from the token with proper typing
+    // Extract role from token with proper typing
     const userRole = (token as { role?: string }).role;
 
-    // Check if the user role is allowed
+    // Check if user role is allowed
     if (userRole && allowedRoles.includes(userRole)) {
-      if (res) {
-        // Continue API route execution
-        return;
-      } else {
-        // Continue middleware execution
+      if (isMiddleware) {
         return NextResponse.next();
+      } else {
+        return; // Continue with API route execution
       }
     } else {
-      if (res) {
-        // Traditional API route redirection
-        res.writeHead(302, { Location: "/unauthorized" });
-        res.end();
-        return;
-      } else {
-        // Middleware/Edge route redirection
+      // If role is not allowed, redirect to unauthorized page
+      if (isMiddleware) {
         return NextResponse.redirect(new URL("/unauthorized", (req as NextRequest).url));
+      } else {
+        res?.writeHead(302, { Location: "/unauthorized" });
+        res?.end();
+        return;
       }
     }
   };
