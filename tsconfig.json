@@ -15,15 +15,22 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]  // ✅ Allow importing from root-level folders
+      "@/*": ["./*"]
     },
     "typeRoots": ["./types", "./node_modules/@types"],
-    "plugins": [{ "name": "next" }]
+    "plugins": [{ "name": "next" }],
+    "forceConsistentCasingInFileNames": true,  // ✅ Ensures consistent import casing
+    "strictNullChecks": true,                  // ✅ Better null safety
+    "noUnusedLocals": true,                    // ✅ Clean up unused imports
+    "noUnusedParameters": true,                // ✅ Clean up unused parameters
+    "noImplicitAny": true,                     // ✅ Type safety
+    "noImplicitReturns": true                  // ✅ Ensures all code paths return
   },
   "include": [
-  "types",
-  "pages",
-  "lib",
+    "types",
+    "pages",
+    "lib",
+    "components",                 // ✅ Added if you have a components directory
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
