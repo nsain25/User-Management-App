@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import requireRole from "../../middleware/requireRole";
+import { requireRole } from "../../middleware/requireRole";
 
 // Define handler as a named function
 const adminHandler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -8,7 +8,7 @@ const adminHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 // Export with a name to avoid anonymous function warning
 const AdminApi = async (req: NextApiRequest, res: NextApiResponse) => {
-  await requireRole(["ADMIN"])(req, res, () => adminHandler(req, res));
+  await requireRole(["ADMIN"])(req)(res, () => adminHandler(req, res));
 };
 
 export default AdminApi;
