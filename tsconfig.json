@@ -19,18 +19,21 @@
     },
     "typeRoots": ["./types", "./node_modules/@types"],
     "plugins": [{ "name": "next" }],
-    "forceConsistentCasingInFileNames": true,  // ✅ Ensures consistent import casing
-    "strictNullChecks": true,                  // ✅ Better null safety
-    "noUnusedLocals": true,                    // ✅ Clean up unused imports
-    "noUnusedParameters": true,                // ✅ Clean up unused parameters
-    "noImplicitAny": true,                     // ✅ Type safety
-    "noImplicitReturns": true                  // ✅ Ensures all code paths return
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "allowSyntheticDefaultImports": true,    // ✅ Ensures compatibility with ES modules
+    "importsNotUsedAsValues": "preserve",    // ✅ Fixes issues with type-only imports
+    "skipDefaultLibCheck": true              // ✅ Speeds up compilation
   },
   "include": [
     "types",
     "pages",
     "lib",
-    "components",                 // ✅ Added if you have a components directory
+    "components",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
