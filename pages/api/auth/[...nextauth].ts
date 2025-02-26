@@ -19,6 +19,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Please enter both email and password.");
         }
 
+        // Fetch user with role included
         const user = await prisma.user.findUnique({
           where: {
             email: credentials.email,
@@ -28,10 +29,12 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
+        // If user is not found
         if (!user) {
           throw new Error("No user found with this email.");
         }
 
+        // Compare the password using bcryptjs
         const isValidPassword = await compare(
           credentials.password,
           user.password
@@ -41,6 +44,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Incorrect password.");
         }
 
+        // Return user object for session
         return {
           id: user.id,
           name: user.name,
@@ -51,10 +55,11 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   jwt: {
-    secret: process.env.JWT_SECRET
+    secret: process.env.NEXTAUTH_SECRET,
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -71,7 +76,13 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     }
-  }
+  },
+  pages: {
+    signIn: "/auth/signin",
+    error: "/auth/error",
+    newUser: null
+  },
+  debug: process.env.NODE_ENV === "development",
 };
 
 export default NextAuth(authOptions);
