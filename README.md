@@ -111,6 +111,7 @@ user-management-app/
 ├── types/                # TypeScript type definitions
 │
 └── .env                  # Environment variables
+
 Learn More
 To learn more about the tools and libraries used in this project, check out the following resources:
 - Next.js Documentation - Learn about Next.js features and API.
